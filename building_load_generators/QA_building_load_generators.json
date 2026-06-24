@@ -1,0 +1,62 @@
+{
+  "S1": {
+    "file": "S1_LoadGen_Guangzhou_LiteratureBase.idf",
+    "version_24_2": true,
+    "has_site_location": true,
+    "has_ideal_loads": true,
+    "has_zone_equipment_connections": true,
+    "has_output_cooling_energy": true,
+    "zone_multiplier": 42,
+    "equivalent_floor_area_m2": 42000
+  },
+  "S2": {
+    "file": "S2_LoadGen_Guangzhou_CapacityScaled.idf",
+    "version_24_2": true,
+    "has_site_location": true,
+    "has_ideal_loads": true,
+    "has_zone_equipment_connections": true,
+    "has_output_cooling_energy": true,
+    "zone_multiplier": 47,
+    "equivalent_floor_area_m2": 47000
+  },
+  "S3": {
+    "file": "S3_LoadGen_Guangzhou_ActionBoundMismatch.idf",
+    "version_24_2": true,
+    "has_site_location": true,
+    "has_ideal_loads": true,
+    "has_zone_equipment_connections": true,
+    "has_output_cooling_energy": true,
+    "zone_multiplier": 42,
+    "equivalent_floor_area_m2": 42000
+  },
+  "T1": {
+    "file": "T1_LoadGen_Guangzhou_SimilarTarget.idf",
+    "version_24_2": true,
+    "has_site_location": true,
+    "has_ideal_loads": true,
+    "has_zone_equipment_connections": true,
+    "has_output_cooling_energy": true,
+    "zone_multiplier": 43,
+    "equivalent_floor_area_m2": 43000
+  },
+  "T2": {
+    "file": "T2_LoadGen_Guangzhou_MediumMismatch.idf",
+    "version_24_2": true,
+    "has_site_location": true,
+    "has_ideal_loads": true,
+    "has_zone_equipment_connections": true,
+    "has_output_cooling_energy": true,
+    "zone_multiplier": 50,
+    "equivalent_floor_area_m2": 50000
+  },
+  "T3": {
+    "file": "T3_LoadGen_HongKong_HighRisk.idf",
+    "version_24_2": true,
+    "has_site_location": true,
+    "has_ideal_loads": true,
+    "has_zone_equipment_connections": true,
+    "has_output_cooling_energy": true,
+    "zone_multiplier": 47,
+    "equivalent_floor_area_m2": 47000
+  }
+}

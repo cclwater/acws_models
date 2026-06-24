@@ -1,0 +1,560 @@
+﻿! ==================================================================================================
+! Building-side load generator for ACWS LLM-guided transfer RL study
+! Domain: T3
+! Purpose: Generate weather-consistent hourly cooling loads from a Meteonorm EPW file.
+! EnergyPlus: 24.2
+! Notes:
+!  - This is an equivalent whole-building load model using ZoneHVAC:IdealLoadsAirSystem.
+!  - It is not intended to simulate plant energy use. Use its cooling-load output to replace T3_acws_load_profile.csv.
+!  - The zone multiplier represents an equivalent conditioned floor area, not a detailed architectural model.
+! ==================================================================================================
+
+Version,24.2;
+
+SimulationControl,
+  No,
+  No,
+  No,
+  No,
+  Yes;
+
+Building,
+  T3_Building_Load_Generator,
+  0.0,
+  City,
+  0.04,
+  0.40,
+  FullExterior,
+  25,
+  6;
+
+Timestep,
+  4;
+
+Site:Location,
+  Hong Kong Meteonorm8,
+  22.3193,
+  114.1694,
+  8.0,
+  8.0;
+
+Site:GroundTemperature:BuildingSurface,
+  22.0, 22.5, 23.5, 24.5, 25.5, 26.5, 27.0, 27.0, 26.5, 25.5, 24.0, 22.5;
+
+RunPeriod,
+  Annual Run,
+  1, 1,
+  ,
+  12, 31,
+  ,
+  Monday,
+  Yes, Yes, No, Yes, Yes;
+
+ScheduleTypeLimits,
+  Fraction,
+  0.0,
+  1.0,
+  CONTINUOUS;
+
+ScheduleTypeLimits,
+  Temperature,
+  -60,
+  200,
+  CONTINUOUS;
+
+ScheduleTypeLimits,
+  Control Type,
+  0,
+  4,
+  DISCRETE;
+
+ScheduleTypeLimits,
+  Any Number,
+  ,
+  ,
+  CONTINUOUS;
+
+Schedule:Constant,
+  Always On,
+  Fraction,
+  1.0;
+
+Schedule:Constant,
+  Thermostat Control Type,
+  Control Type,
+  4;
+
+Schedule:Compact,
+  Office Occupancy Schedule,
+  Fraction,
+  Through: 12/31,
+  For: Weekdays,
+  Until: 06:00, 0.05,
+  Until: 08:00, 0.20,
+  Until: 12:00, 0.95,
+  Until: 13:00, 0.70,
+  Until: 18:00, 0.95,
+  Until: 20:00, 0.30,
+  Until: 24:00, 0.05,
+  For: Saturday,
+  Until: 08:00, 0.05,
+  Until: 18:00, 0.45,
+  Until: 24:00, 0.05,
+  For: Sunday Holidays,
+  Until: 24:00, 0.05;
+
+Schedule:Compact,
+  Lighting Schedule,
+  Fraction,
+  Through: 12/31,
+  For: Weekdays,
+  Until: 06:00, 0.05,
+  Until: 08:00, 0.30,
+  Until: 18:00, 0.90,
+  Until: 20:00, 0.40,
+  Until: 24:00, 0.10,
+  For: Saturday,
+  Until: 08:00, 0.05,
+  Until: 18:00, 0.50,
+  Until: 24:00, 0.10,
+  For: Sunday Holidays,
+  Until: 24:00, 0.05;
+
+Schedule:Compact,
+  Equipment Schedule,
+  Fraction,
+  Through: 12/31,
+  For: Weekdays,
+  Until: 06:00, 0.25,
+  Until: 08:00, 0.45,
+  Until: 18:00, 0.90,
+  Until: 20:00, 0.55,
+  Until: 24:00, 0.30,
+  For: Saturday,
+  Until: 08:00, 0.25,
+  Until: 18:00, 0.60,
+  Until: 24:00, 0.30,
+  For: Sunday Holidays,
+  Until: 24:00, 0.25;
+
+Schedule:Constant,
+  Activity Level Schedule,
+  Any Number,
+  120.0;
+
+Schedule:Compact,
+  Cooling Setpoint Schedule,
+  Temperature,
+  Through: 12/31,
+  For: Weekdays,
+  Until: 06:00, 26.5,
+  Until: 20:00, 24.0,
+  Until: 24:00, 26.5,
+  For: Saturday,
+  Until: 08:00, 26.5,
+  Until: 18:00, 24.5,
+  Until: 24:00, 26.5,
+  For: Sunday Holidays,
+  Until: 24:00, 26.5;
+
+Schedule:Constant,
+  Heating Setpoint Schedule,
+  Temperature,
+  18.0;
+
+GlobalGeometryRules,
+  UpperLeftCorner,
+  CounterClockWise,
+  World;
+
+Zone,
+  LOAD_ZONE,
+  0,
+  0, 0, 0,
+  1,
+  47,
+  4.00,
+  autocalculate,
+  autocalculate;
+
+BuildingSurface:Detailed,
+  LOAD_ZONE_FLOOR,
+  Floor,
+  Adiabatic Floor Construction,
+  LOAD_ZONE,
+  ,
+  Adiabatic,
+  ,
+  NoSun,
+  NoWind,
+  0.0,
+  4,
+  0.0, 0.0, 0.0,
+  50.00, 0.0, 0.0,
+  50.00, 20.00, 0.0,
+  0.0, 20.00, 0.0;
+
+BuildingSurface:Detailed,
+  LOAD_ZONE_ROOF,
+  Roof,
+  Adiabatic Roof Construction,
+  LOAD_ZONE,
+  ,
+  Adiabatic,
+  ,
+  NoSun,
+  NoWind,
+  0.0,
+  4,
+  0.0, 20.00, 4.00,
+  50.00, 20.00, 4.00,
+  50.00, 0.0, 4.00,
+  0.0, 0.0, 4.00;
+
+BuildingSurface:Detailed,
+  SOUTH_WALL,
+  Wall,
+  Exterior Wall Construction,
+  LOAD_ZONE,
+  ,
+  Outdoors,
+  ,
+  SunExposed,
+  WindExposed,
+  0.5,
+  4,
+  50.00, 0.0, 4.00,
+  50.00, 0.0, 0.0,
+  0.0, 0.0, 0.0,
+  0.0, 0.0, 4.00;
+
+BuildingSurface:Detailed,
+  EAST_WALL,
+  Wall,
+  Exterior Wall Construction,
+  LOAD_ZONE,
+  ,
+  Outdoors,
+  ,
+  SunExposed,
+  WindExposed,
+  0.5,
+  4,
+  50.00, 20.00, 4.00,
+  50.00, 20.00, 0.0,
+  50.00, 0.0, 0.0,
+  50.00, 0.0, 4.00;
+
+BuildingSurface:Detailed,
+  NORTH_WALL,
+  Wall,
+  Exterior Wall Construction,
+  LOAD_ZONE,
+  ,
+  Outdoors,
+  ,
+  SunExposed,
+  WindExposed,
+  0.5,
+  4,
+  0.0, 20.00, 4.00,
+  0.0, 20.00, 0.0,
+  50.00, 20.00, 0.0,
+  50.00, 20.00, 4.00;
+
+BuildingSurface:Detailed,
+  WEST_WALL,
+  Wall,
+  Exterior Wall Construction,
+  LOAD_ZONE,
+  ,
+  Outdoors,
+  ,
+  SunExposed,
+  WindExposed,
+  0.5,
+  4,
+  0.0, 0.0, 4.00,
+  0.0, 0.0, 0.0,
+  0.0, 20.00, 0.0,
+  0.0, 20.00, 4.00;
+
+FenestrationSurface:Detailed,
+  SOUTH_WINDOW,
+  Window,
+  Window Construction,
+  SOUTH_WALL,
+  ,
+  0.5,
+  ,
+  1,
+  4,
+  45.0, 0.0, 3.15,
+  45.0, 0.0, 0.90,
+  5.0, 0.0, 0.90,
+  5.0, 0.0, 3.15;
+
+FenestrationSurface:Detailed,
+  NORTH_WINDOW,
+  Window,
+  Window Construction,
+  NORTH_WALL,
+  ,
+  0.5,
+  ,
+  1,
+  4,
+  5.0, 20.00, 3.15,
+  5.0, 20.00, 0.90,
+  45.0, 20.00, 0.90,
+  45.0, 20.00, 3.15;
+
+FenestrationSurface:Detailed,
+  EAST_WINDOW,
+  Window,
+  Window Construction,
+  EAST_WALL,
+  ,
+  0.5,
+  ,
+  1,
+  4,
+  50.00, 18.0, 3.15,
+  50.00, 18.0, 0.90,
+  50.00, 2.0, 0.90,
+  50.00, 2.0, 3.15;
+
+FenestrationSurface:Detailed,
+  WEST_WINDOW,
+  Window,
+  Window Construction,
+  WEST_WALL,
+  ,
+  0.5,
+  ,
+  1,
+  4,
+  0.0, 2.0, 3.15,
+  0.0, 2.0, 0.90,
+  0.0, 18.0, 0.90,
+  0.0, 18.0, 3.15;
+
+Material,
+  Concrete 200mm,
+  MediumRough,
+  0.200,
+  1.400,
+  2200,
+  900,
+  0.90,
+  0.65,
+  0.65;
+
+Material,
+  Wall Insulation 80mm,
+  MediumRough,
+  0.080,
+  0.040,
+  32,
+  1400,
+  0.90,
+  0.50,
+  0.50;
+
+Material,
+  Gypsum Board 13mm,
+  Smooth,
+  0.013,
+  0.160,
+  800,
+  1090,
+  0.90,
+  0.50,
+  0.50;
+
+Material:NoMass,
+  Adiabatic Layer,
+  Rough,
+  0.50,
+  0.90,
+  0.70,
+  0.70;
+
+WindowMaterial:SimpleGlazingSystem,
+  Double LowE Simple Window,
+  2.70,
+  0.35,
+  0.60;
+
+Construction,
+  Exterior Wall Construction,
+  Concrete 200mm,
+  Wall Insulation 80mm,
+  Gypsum Board 13mm;
+
+Construction,
+  Adiabatic Floor Construction,
+  Adiabatic Layer;
+
+Construction,
+  Adiabatic Roof Construction,
+  Adiabatic Layer;
+
+Construction,
+  Window Construction,
+  Double LowE Simple Window;
+
+People,
+  LOAD_ZONE People,
+  LOAD_ZONE,
+  Office Occupancy Schedule,
+  People/Area,
+  ,
+  0.06500,
+  ,
+  0.30,
+  autocalculate,
+  Activity Level Schedule;
+
+Lights,
+  LOAD_ZONE Lights,
+  LOAD_ZONE,
+  Lighting Schedule,
+  Watts/Area,
+  ,
+  10.000,
+  ,
+  0.0,
+  0.70,
+  0.20,
+  0.10;
+
+ElectricEquipment,
+  LOAD_ZONE Equipment,
+  LOAD_ZONE,
+  Equipment Schedule,
+  Watts/Area,
+  ,
+  14.000,
+  ,
+  0.0,
+  0.50,
+  0.30,
+  0.20;
+
+ZoneInfiltration:DesignFlowRate,
+  LOAD_ZONE Infiltration,
+  LOAD_ZONE,
+  Always On,
+  AirChanges/Hour,
+  ,
+  ,
+  ,
+  0.200;
+
+DesignSpecification:OutdoorAir,
+  LOAD_ZONE Outdoor Air Specification,
+  Sum,
+  0.00950,
+  0.0003500,
+  0.0,
+  0.0,
+  Office Occupancy Schedule;
+
+OutdoorAir:Node,
+  LOAD_ZONE Outdoor Air Node;
+
+ZoneControl:Thermostat,
+  LOAD_ZONE Thermostat,
+  LOAD_ZONE,
+  Thermostat Control Type,
+  ThermostatSetpoint:DualSetpoint,
+  LOAD_ZONE Dual Setpoint;
+
+ThermostatSetpoint:DualSetpoint,
+  LOAD_ZONE Dual Setpoint,
+  Heating Setpoint Schedule,
+  Cooling Setpoint Schedule;
+
+ZoneHVAC:EquipmentConnections,
+  LOAD_ZONE,
+  LOAD_ZONE Equipment List,
+  LOAD_ZONE Inlet Node List,
+  ,
+  LOAD_ZONE Air Node,
+  LOAD_ZONE Return Air Node;
+
+NodeList,
+  LOAD_ZONE Inlet Node List,
+  LOAD_ZONE Supply Air Node;
+
+ZoneHVAC:EquipmentList,
+  LOAD_ZONE Equipment List,
+  SequentialLoad,
+  ZoneHVAC:IdealLoadsAirSystem,
+  LOAD_ZONE Ideal Loads,
+  1,
+  1,
+  Always On,
+  Always On;
+
+ZoneHVAC:IdealLoadsAirSystem,
+  LOAD_ZONE Ideal Loads,
+  Always On,
+  LOAD_ZONE Supply Air Node,
+  ,
+  ,
+  50.0,
+  13.0,
+  0.0156,
+  0.0077,
+  NoLimit,
+  ,
+  ,
+  NoLimit,
+  ,
+  ,
+  Always On,
+  Always On,
+  ConstantSensibleHeatRatio,
+  0.66,
+  None,
+  LOAD_ZONE Outdoor Air Specification,
+  LOAD_ZONE Outdoor Air Node,
+  None,
+  NoEconomizer,
+  None,
+  0.70,
+  0.65,
+  ;
+
+Output:VariableDictionary,
+  Regular;
+
+Output:Variable,
+  *,
+  Zone Ideal Loads Supply Air Total Cooling Energy,
+  Hourly;
+
+Output:Variable,
+  *,
+  Zone Ideal Loads Zone Total Cooling Energy,
+  Hourly;
+
+Output:Variable,
+  *,
+  Zone Air Temperature,
+  Hourly;
+
+Output:Meter,
+  DistrictCooling:Facility,
+  Hourly;
+
+OutputControl:Table:Style,
+  Comma;
+
+Output:SQLite,
+  SimpleAndTabular;
+
+
+

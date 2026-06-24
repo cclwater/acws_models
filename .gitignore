@@ -1,0 +1,25 @@
+# EnergyPlus runtime outputs
+runs/
+**/runs/
+eplusout.*
+*.eso
+*.mtr
+*.sql
+*.err
+*.audit
+*.bnd
+*.eio
+*.rdd
+*.mdd
+*.shd
+*.csv
+
+# Keep model input CSV load profiles
+!load_profiles/*.csv
+
+# OS/editor files
+Thumbs.db
+.DS_Store
+desktop.ini
+__pycache__/
+*.pyc

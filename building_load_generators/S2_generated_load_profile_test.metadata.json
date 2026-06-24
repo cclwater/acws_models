@@ -1,0 +1,15 @@
+{
+  "domain": "S2",
+  "source_eplusout": "output_load_S2_test\\eplusout.csv",
+  "source_columns": [
+    "LOAD_ZONE IDEAL LOADS:Zone Ideal Loads Supply Air Total Cooling Energy [J](Hourly)"
+  ],
+  "source_variable_used": "Zone Ideal Loads Supply Air Total Cooling Energy [J]",
+  "raw_peak_kw": 4025.440259730161,
+  "scaled_peak_kw": 5715.6,
+  "scale_factor": 1.4198695375454748,
+  "scale_to_target": true,
+  "target_peak_kw_if_scaled": 5715.6,
+  "annual_cooling_MWh_thermal": 10037.246923533108,
+  "output_csv": "S2_generated_load_profile_test.csv"
+}
