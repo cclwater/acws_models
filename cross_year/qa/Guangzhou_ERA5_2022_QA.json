@@ -1,0 +1,57 @@
+{
+  "input_file": "source_nc/guangzhou.nc (not distributed)",
+  "input_sha256": "7370B5C36C6D95EEEAB47FC344FED0057448C12F83A67785E9BDB2390FF39AF4",
+  "output_file": "cross_year/weather/Guangzhou_ERA5_2022.epw",
+  "output_sha256": "3356C526762634A333D696A7FB74DAC93DBF8366F1A77EED0460BE30DFBD9E56",
+  "source": "ERA5 hourly single-level point time series",
+  "source_coordinates": {
+    "latitude": 23.25,
+    "longitude": 113.25
+  },
+  "timezone_hours": 8.0,
+  "year": 2022,
+  "rows": 8760,
+  "first_local_timestamp": "2022-01-01 00:00:00",
+  "last_local_timestamp": "2022-12-31 23:00:00",
+  "dry_bulb_c": {
+    "min": 5.3,
+    "max": 37.6,
+    "mean": 23.052705479452055
+  },
+  "dew_point_c": {
+    "min": -9.6,
+    "max": 28.0,
+    "mean": 18.06810502283105
+  },
+  "relative_humidity_percent": {
+    "min": 22,
+    "max": 100,
+    "mean": 75.38002283105023
+  },
+  "radiation_wh_m2": {
+    "ghi_max": 1001,
+    "dni_max": 1400,
+    "dhi_max": 397,
+    "horizontal_ir_max": 468
+  },
+  "wind_speed_m_s": {
+    "min": 0.0,
+    "max": 8.6,
+    "mean": 2.59439497716895
+  },
+  "precipitation_mm_sum": 2227.404,
+  "solar_derivation": {
+    "ghi": "max(ssrd / 3600, 0)",
+    "direct_horizontal": "clip(fdir / 3600, 0, ghi)",
+    "dni": "direct_horizontal / cos(solar_zenith) when cos(zenith)>0.065; clipped to 1400",
+    "dhi": "ghi - dni*cos(solar_zenith)",
+    "solar_position": "NOAA fractional-year approximation at hourly midpoint",
+    "negative_ssrd_values_clipped": 1,
+    "fdir_greater_than_ssrd_values_clipped": 0,
+    "dni_values_clipped_above_1400": 26,
+    "solar_balance_max_abs_wh_m2": 5.684341886080802e-14,
+    "solar_cosine_threshold": 0.065,
+    "dni_upper_bound_wh_m2": 1400.0
+  },
+  "status": "PASS"
+}

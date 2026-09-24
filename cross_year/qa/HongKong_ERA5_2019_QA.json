@@ -1,0 +1,57 @@
+{
+  "input_file": "source_nc/hongkong.nc (not distributed)",
+  "input_sha256": "8FE66CA10CF9E389AADCDE52B3E0FF6FC6038C790CE844B2F27C1FAE6EA0C284",
+  "output_file": "cross_year/weather/HongKong_ERA5_2019.epw",
+  "output_sha256": "7DBAE44FCAAE1A9B22A74E51735C5348AD4A025FAC385B9B9CF3D2AF222D4384",
+  "source": "ERA5 hourly single-level point time series",
+  "source_coordinates": {
+    "latitude": 22.25,
+    "longitude": 114.25
+  },
+  "timezone_hours": 8.0,
+  "year": 2019,
+  "rows": 8760,
+  "first_local_timestamp": "2019-01-01 00:00:00",
+  "last_local_timestamp": "2019-12-31 23:00:00",
+  "dry_bulb_c": {
+    "min": 9.8,
+    "max": 32.9,
+    "mean": 24.0301598173516
+  },
+  "dew_point_c": {
+    "min": 0.1,
+    "max": 28.3,
+    "mean": 20.498367579908678
+  },
+  "relative_humidity_percent": {
+    "min": 28,
+    "max": 99,
+    "mean": 81.46175799086758
+  },
+  "radiation_wh_m2": {
+    "ghi_max": 948,
+    "dni_max": 1400,
+    "dhi_max": 411,
+    "horizontal_ir_max": 458
+  },
+  "wind_speed_m_s": {
+    "min": 0.1,
+    "max": 13.8,
+    "mean": 4.344052511415525
+  },
+  "precipitation_mm_sum": 1818.257,
+  "solar_derivation": {
+    "ghi": "max(ssrd / 3600, 0)",
+    "direct_horizontal": "clip(fdir / 3600, 0, ghi)",
+    "dni": "direct_horizontal / cos(solar_zenith) when cos(zenith)>0.065; clipped to 1400",
+    "dhi": "ghi - dni*cos(solar_zenith)",
+    "solar_position": "NOAA fractional-year approximation at hourly midpoint",
+    "negative_ssrd_values_clipped": 0,
+    "fdir_greater_than_ssrd_values_clipped": 0,
+    "dni_values_clipped_above_1400": 32,
+    "solar_balance_max_abs_wh_m2": 5.684341886080802e-14,
+    "solar_cosine_threshold": 0.065,
+    "dni_upper_bound_wh_m2": 1400.0
+  },
+  "status": "PASS"
+}
