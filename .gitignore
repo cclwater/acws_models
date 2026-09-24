@@ -12,14 +12,27 @@ eplusout.*
 *.rdd
 *.mdd
 *.shd
-*.csv
 
-# Keep model input CSV load profiles
-!load_profiles/*.csv
+# Large downloaded source data (derived EPW files remain tracked)
+*.nc
+*.grib
+
+# Python environments and caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Credentials and local configuration
+.env
+.env.*
+!.env.example
 
 # OS/editor files
 Thumbs.db
 .DS_Store
 desktop.ini
-__pycache__/
-*.pyc
+.idea/
+.vscode/
+

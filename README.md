@@ -1,69 +1,117 @@
-# ACWS EnergyPlus 24.2 model and weather files
+# ACWS EnergyPlus simulation package
 
-This repository contains the EnergyPlus model and weather inputs used for the
-multi-domain air-conditioning water system (ACWS) control study.
+This repository contains the EnergyPlus inputs used for the multi-domain
+air-conditioning water system (ACWS) study and its revision experiments.
+It is limited to the simulation layer: EnergyPlus models, weather files,
+cooling-load schedules, weather-conversion utilities, and compact result
+summaries. Reinforcement-learning checkpoints, LLM credentials/responses,
+paper drafts, and large EnergyPlus runtime outputs are not included.
 
-## Scope
+## Requirements
 
-Only model-side files and weather inputs are included here. Training scripts,
-reinforcement-learning checkpoints, paper drafts, result tables, and reference
-PDFs are not included.
+- EnergyPlus 24.2
+- Python 3.10 or newer for the helper scripts
+- Optional Python packages in `requirements-optional.txt` only when converting
+  ERA5 NetCDF files to EPW
 
-## EnergyPlus version
+## Repository layout
 
-- EnergyPlus version: 24.2
-- Model type: water-side chiller plant / ACWS models with building-side cooling
-  load schedules
+```text
+.
+|-- models/                    # six baseline ACWS plant models
+|-- load_profiles/             # 8760-hour schedules used by baseline models
+|-- weather/                   # Guangzhou and Hong Kong baseline EPW files
+|-- building_load_generators/  # supporting building-side load models
+|-- cross_year/
+|   |-- models/                # 2019/2022 raw and risk-matched IDFs
+|   |-- weather/               # four ERA5-derived EPW files
+|   |-- qa/                    # weather conversion checks
+|   |-- results/               # compact cross-year summary tables
+|   `-- scripts/               # NetCDF-to-EPW and schedule utilities
+`-- run_energyplus.py          # portable baseline/cross-year runner
+```
 
-## Domain mapping
+## Baseline domain mapping
 
-| Domain | Model file | Weather file | Role in the paper |
+| Domain | Model | Weather | Purpose |
 |---|---|---|---|
-| S1 | `models/S1_3Chiller_LiteratureBase_Guangzhou_buildingload_test.idf` | `weather/Guangzhou_CH-hour_inter.epw` | Literature-based source domain |
-| S2 | `models/S2_3Chiller_CapacityScaled_Guangzhou_buildingload_test.idf` | `weather/Guangzhou_CH-hour_inter.epw` | Capacity-scaled source domain |
-| S3 | `models/S3_3Chiller_ActionBoundMismatch_Guangzhou_buildingload_test.idf` | `weather/Guangzhou_CH-hour_inter.epw` | Action-bound-mismatch source domain |
-| T1 | `models/T1_3Chiller_SimilarTarget_Guangzhou_buildingload_test.idf` | `weather/Guangzhou_CH-hour_inter.epw` | Similar low-risk target domain |
-| T2 | `models/T2_3Chiller_MediumMismatch_Guangzhou_buildingload_test.idf` | `weather/Guangzhou_CH-hour_inter.epw` | Medium-mismatch target domain |
-| T3 | `models/T3_3Chiller_HighRisk_HongKong_physical_matched_buildingload_test.idf` | `weather/Hong_Kong_Observatory-hour_station.epw` | High-risk hot-humid target domain |
+| S1 | `models/S1_3Chiller_LiteratureBase_Guangzhou_buildingload_test.idf` | Guangzhou | literature-based source |
+| S2 | `models/S2_3Chiller_CapacityScaled_Guangzhou_buildingload_test.idf` | Guangzhou | capacity-scaled source |
+| S3 | `models/S3_3Chiller_ActionBoundMismatch_Guangzhou_buildingload_test.idf` | Guangzhou | action-bound-mismatch source |
+| T1 | `models/T1_3Chiller_SimilarTarget_Guangzhou_buildingload_test.idf` | Guangzhou | similar target |
+| T2 | `models/T2_3Chiller_MediumMismatch_Guangzhou_buildingload_test.idf` | Guangzhou | moderate-mismatch target |
+| T3 | `models/T3_3Chiller_HighRisk_HongKong_physical_matched_buildingload_test.idf` | Hong Kong | high-risk boundary target |
 
-The T3 model is the physically matched/calibrated version used after correcting
-the original high-load target-domain capacity mismatch.
+The T3 file is the physically matched version used in the reported study.
+Each baseline IDF reads its corresponding CSV under `load_profiles/` through
+an EnergyPlus `Schedule:File` object.
 
-## Load-profile inputs
+## Run examples
 
-The IDF files use `Schedule:File` objects. Therefore, the following CSV files in
-`load_profiles/` are part of the model input package and should be kept with the
-IDF files:
+Show a command without starting EnergyPlus:
 
-- `S1_generated_load_profile_test_eplus_cooling.csv`
-- `S2_generated_load_profile_test_eplus_cooling.csv`
-- `S3_generated_load_profile_test_eplus_cooling.csv`
-- `T1_generated_load_profile_test_eplus_cooling.csv`
-- `T2_generated_load_profile_test_eplus_cooling.csv`
-- `T3_generated_load_profile_test_eplus_cooling.csv`
-
-Each file contains 8760 hourly values. The second column is the cooling load in
-W as used by EnergyPlus `LoadProfile:Plant`.
-
-## Building-load generator models
-
-The `building_load_generators/` folder contains the simplified EnergyPlus
-building-side load generator IDFs used to create the cooling-load schedules for
-the six domains. These files are included only as model-supporting materials.
-
-## Suggested run command
-
-Example for S1:
-
-```powershell
-energyplus -w .\weather\Guangzhou_CH-hour_inter.epw -d .\runs\S1 .\models\S1_3Chiller_LiteratureBase_Guangzhou_buildingload_test.idf
+```bash
+python run_energyplus.py --suite base --domain S1 --dry-run
 ```
 
-Example for T3:
+Run one baseline domain:
 
-```powershell
-energyplus -w .\weather\Hong_Kong_Observatory-hour_station.epw -d .\runs\T3 .\models\T3_3Chiller_HighRisk_HongKong_physical_matched_buildingload_test.idf
+```bash
+python run_energyplus.py --suite base --domain T3
 ```
 
-If EnergyPlus is installed outside the system path, replace `energyplus` with
-the full path to the EnergyPlus 24.2 executable.
+Run the 2019 risk-matched T3 model with the frozen LLM route:
+
+```bash
+python run_energyplus.py --suite cross-year --domain T3 --year 2019 --mode scaled --policy llm
+```
+
+Run every risk-matched cross-year case (18 annual simulations):
+
+```bash
+python run_energyplus.py --suite cross-year --domain all --year all --mode scaled --policy all
+```
+
+If EnergyPlus is not on `PATH`, pass the executable explicitly:
+
+```bash
+python run_energyplus.py --energyplus "C:/EnergyPlusV24-2-0/energyplus.exe" --suite base --domain S1
+```
+
+Outputs are written below `runs/`, which is excluded by `.gitignore`. By
+default the runner also invokes the `ReadVarsESO` utility distributed with
+EnergyPlus and creates `eplusout.csv`; use `--skip-readvars` to keep only the
+native ESO output.
+
+## Cross-year validation
+
+The `cross_year/` folder contains the unseen-year 2019 and 2022 inputs used in
+the revision. `scaled` denotes the risk-matched protocol that preserves the
+submitted peak-load/capacity ratios; `raw` retains the natural ERA5-driven
+load magnitude. The `llm`, `deterministic`, and `bounded_rule` names identify
+the frozen supervisory schedule embedded in each generated IDF. Running these
+IDFs does not query an online LLM.
+
+See [`cross_year/README.md`](cross_year/README.md) for details and limitations.
+
+## Reproducibility notes
+
+- Run commands from the repository root or use `run_energyplus.py`; the script
+  selects the correct working directory for `Schedule:File` paths.
+- Weather QA metadata record the ERA5 grid point, year, row count, hashes, and
+  physical-range checks.
+- Raw downloaded NetCDF files are intentionally not committed. They can be
+  regenerated from Copernicus ERA5 and converted with the included utility.
+- Full `eplusout.*`, timestep transition files, trained policies, and API audit
+  records are intentionally excluded because they are not EnergyPlus inputs.
+
+## License and citation
+
+No open-source license has yet been selected. Add a `LICENSE` file before
+advertising reuse permissions. When the associated article is published, add
+its final citation and DOI here.
+
+Before making the repository public, also confirm that the two legacy baseline
+EPW files under `weather/` may be redistributed under their original provider
+terms. The ERA5-derived files should be accompanied by the applicable
+Copernicus/ERA5 acknowledgement in the final repository description.
